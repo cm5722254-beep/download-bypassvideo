@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TDL Media Downloader Pro - Global Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background Ambient Glow Canvas -->
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+    <div class="ambient-glow glow-3"></div>
+
+    <div class="app-container">
+        <!-- TOP NAVIGATION & STATUS BAR -->
+        <header class="top-nav">
+            <div class="nav-left">
+                <div class="brand-logo">
+                    <div class="logo-orb">
+                        <span class="orb-pulse"></span>
+                        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                    </div>
+                    <div class="brand-text">
+                        <div class="brand-title">TDL MEDIA DOWNLOADER <span class="badge-win">PRO GLOBAL</span></div>
+                        <div class="brand-subtitle">ប្រព័ន្ធទាញយកវីដេអូ និង Poster កម្រិត Master ពី Server API ផ្ទាល់ (Zero Demo Data)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Download Directory Control -->
+            <div class="nav-center">
+                <div class="folder-control-pill">
+                    <span class="folder-icon">📁</span>
+                    <div class="folder-info">
+                        <span class="folder-label">Folder ផ្ទុកឯកសារ (Download Destination)</span>
+                        <input type="text" id="folderInput" class="folder-input" value="Loading..." readonly>
+                    </div>
+                    <button id="btnBrowseFolder" class="btn-pill-action" title="ជ្រើសរើស Folder ក្នុង Windows">
+                        <span>ផ្លាស់ប្តូរ</span>
+                    </button>
+                    <button id="btnOpenFolder" class="btn-pill-action btn-open" title="បើក Folder ក្នុង Windows Explorer">
+                        <span>🚀 បើក Folder</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats & Quick Actions -->
+            <div class="nav-right">
+                <button id="btnLiveScan" class="btn-live-scan" title="ស្កេនទាញយកទិន្នន័យវីដេអូពិតៗពី Server API ផ្ទាល់">
+                    <span class="scan-radar-icon">📡</span>
+                    <span class="scan-btn-text">ស្កេន Server (Live Sync)</span>
+                </button>
+                <div class="disk-badge" id="diskBadge">
+                    <span class="disk-icon">💾</span>
+                    <span id="diskFreeText">Disk: -- GB Free</span>
+                </div>
+                <button id="btnToggleQueue" class="btn-queue-toggle">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                    <span>កិច្ចការកំពុងទាញយក</span>
+                    <span class="queue-counter" id="activeTasksBadge">0</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- LIVE SERVER CONNECTION STATUS BAR -->
+        <div class="live-status-bar">
+            <div class="status-indicator">
+                <span class="status-dot"></span>
+                <span class="status-label">API SERVER STATUS:</span>
+                <span class="status-val" id="serverStatusText">🟢 ភ្ជាប់ទៅកាន់ Server API ទាំង ៤ ដោយជោគជ័យ (ទិន្នន័យពិត ១០០%)</span>
+            </div>
+            <div class="status-meta">
+                <span>ពេលវេលា Sync ចុងក្រោយ៖ <strong id="lastSyncTimeText">--:--:--</strong></span>
+                <span class="pill-live">PRODUCTION LIVE</span>
+            </div>
+        </div>
+
+        <!-- SOURCE PLATFORMS TABS -->
+        <section class="sources-section">
+            <div class="tabs-container">
+                <button class="source-tab active" data-source="All">
+                    <span class="tab-icon">✨</span>
+                    <span class="tab-name">ទាំងអស់ (All Sources)</span>
+                    <span class="tab-count" id="tabCountAll">0</span>
+                </button>
+                <button class="source-tab" data-source="DramaBox">
+                    <span class="tab-icon">🎭</span>
+                    <span class="tab-name">DramaBox Official</span>
+                    <span class="tab-count" id="tabCountDramaBox">0</span>
+                </button>
+                <button class="source-tab" data-source="Lucifer Donghua">
+                    <span class="tab-icon">⚔️</span>
+                    <span class="tab-name">Lucifer Donghua</span>
+                    <span class="tab-count" id="tabCountDonghua">0</span>
+                </button>
+                <button class="source-tab" data-source="iQIYI">
+                    <span class="tab-icon">📺</span>
+                    <span class="tab-name">iQIYI VIP Server</span>
+                    <span class="tab-count" id="tabCountIqiyi">0</span>
+                </button>
+                <button class="source-tab" data-source="Hongguo Real Drama">
+                    <span class="tab-icon">🎬</span>
+                    <span class="tab-name">真人剧 (Real Drama)</span>
+                    <span class="tab-count" id="tabCountHgReal">0</span>
+                </button>
+                <button class="source-tab" data-source="Hongguo Comic Drama">
+                    <span class="tab-icon">🎨</span>
+                    <span class="tab-name">漫剧 (Comic Drama)</span>
+                    <span class="tab-count" id="tabCountHgComicDrama">0</span>
+                </button>
+                <button class="source-tab" data-source="Hongguo AI Drama">
+                    <span class="tab-icon">🤖</span>
+                    <span class="tab-name">AI剧 (AI Drama)</span>
+                    <span class="tab-count" id="tabCountHgAi">0</span>
+                </button>
+                <button class="source-tab" data-source="Hongguo Comic">
+                    <span class="tab-icon">📖</span>
+                    <span class="tab-name">漫画 (Comic)</span>
+                    <span class="tab-count" id="tabCountHgComic">0</span>
+                </button>
+                <button class="source-tab custom-tab" id="tabCustomUrl">
+                    <span class="tab-icon">🔗</span>
+                    <span class="tab-name">ដាក់ Link ផ្ទាល់ (Direct Link)</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- CUSTOM DIRECT LINK EXTRACTOR (DRAWER) -->
+        <section class="custom-url-box hidden" id="customUrlBox">
+            <div class="custom-url-card">
+                <div class="custom-url-header">
+                    <h3>🔗 ទាញយកតាមរយៈ Link ផ្ទាល់ (Direct Video / Poster URL Extractor)</h3>
+                    <button class="btn-close-sm" id="btnCloseCustomUrl">✕</button>
+                </div>
+                <p class="custom-url-desc">បិទភ្ជាប់ (Paste) Link វីដេអូ (.mp4, .m3u8, .ts) ឬ Link រូបភាព Poster (.jpg, .png, .webp) ចូលទីនេះដើម្បីទាញយកភ្លាមៗ៖</p>
+                <div class="input-action-row">
+                    <input type="text" id="customUrlInput" class="custom-url-field" placeholder="ឧទាហរណ៍៖ https://domain.com/video.m3u8 ឬ https://domain.com/poster.jpg">
+                    <button id="btnParseUrl" class="btn-primary-glow">
+                        <span>⚡ ពិនិត្យ & បញ្ចូល</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TOOLBAR: SELECTION CONTROLS, SEARCH, AND BATCH ACTIONS -->
+        <section class="toolbar-section">
+            <div class="toolbar-left">
+                <!-- Master Select All Checkbox -->
+                <label class="master-select-box" id="masterSelectLabel">
+                    <input type="checkbox" id="selectAllCheckbox">
+                    <span class="custom-checkbox"></span>
+                    <span class="select-label-text">ជ្រើសរើសទាំងអស់ (Select All)</span>
+                </label>
+                <div class="selection-status-chip" id="selectionStatusChip">
+                    <span id="selectedCountText">0 បានជ្រើសរើស</span>
+                </div>
+            </div>
+
+            <div class="toolbar-center">
+                <div class="search-box">
+                    <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="ស្វែងរករឿង, Anime, Drama, ភាគ..." autocomplete="off">
+                    <button id="btnClearSearch" class="btn-clear-search hidden">✕</button>
+                </div>
+            </div>
+
+            <div class="toolbar-right">
+                <div class="download-format-selector">
+                    <span class="selector-title">ទាញយក៖</span>
+                    <label class="format-check">
+                        <input type="checkbox" id="checkOptPoster" checked>
+                        <span>🖼️ Poster</span>
+                    </label>
+                    <label class="format-check">
+                        <input type="checkbox" id="checkOptVideo" checked>
+                        <span>🎬 Video</span>
+                    </label>
+                </div>
+
+                <button id="btnDownloadSelected" class="btn-batch-download disabled" disabled>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>ទាញយកដែលបានជ្រើស (Download Selected)</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- MAIN MEDIA CONTENT GRID -->
+        <main class="media-content">
+            <div class="media-grid" id="mediaGrid">
+                <!-- Cards will be dynamically injected by JavaScript -->
+            </div>
+
+            <!-- Empty State Message -->
+            <div class="empty-state hidden" id="emptyState">
+                <div class="empty-icon">🔍</div>
+                <h3>រកមិនឃើញទិន្នន័យឡើយ</h3>
+                <p>សូមសាកល្បងស្វែងរកពាក្យផ្សេង ឬចុចប៊ូតុង "ស្កេន Server (Live Sync)" ខាងលើ។</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- FLOATING BATCH ACTION BAR (Slides up when 1+ items selected) -->
+    <div class="floating-batch-bar hidden" id="floatingBatchBar">
+        <div class="batch-bar-content">
+            <div class="batch-bar-left">
+                <div class="batch-count-badge">
+                    <span class="pulse-dot"></span>
+                    <span id="floatingSelectedCount">1</span> វីដេអូបានជ្រើសរើស
+                </div>
+                <button id="btnDeselectAll" class="btn-subtle">ដោះការជ្រើសរើស</button>
+            </div>
+            <div class="batch-bar-right">
+                <button id="btnBatchPosterOnly" class="btn-pill-secondary">
+                    <span>🖼️ ទាញយក Poster ទាំងអស់</span>
+                </button>
+                <button id="btnBatchVideoOnly" class="btn-pill-secondary">
+                    <span>🎬 ទាញយក Video ទាំងអស់</span>
+                </button>
+                <button id="btnBatchBothFull" class="btn-pill-primary">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>📦 ទាញយក Poster + Video (Full Bundle)</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EPISODES BREAKDOWN MODAL (MASTER SENIOR FEATURE) -->
+    <div class="episodes-modal hidden" id="episodesModal">
+        <div class="episodes-backdrop" id="episodesBackdrop"></div>
+        <div class="episodes-content">
+            <div class="episodes-header">
+                <div class="episodes-header-left">
+                    <img id="episodesModalCover" class="episodes-header-thumb" src="" alt="Cover">
+                    <div>
+                        <h3 id="episodesModalTitle">Drama Title</h3>
+                        <div class="episodes-header-meta">
+                            <span class="badge-source" id="episodesModalSource">DramaBox</span>
+                            <span id="episodesModalCount">Total: 0 Episodes</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="episodes-header-right">
+                    <button id="btnDownloadAllEpisodes" class="btn-pill-primary">
+                        <span>📦 ទាញយកភាគទាំងអស់ (Batch Download)</span>
+                    </button>
+                    <button class="btn-close-sm" id="btnCloseEpisodesModal">✕</button>
+                </div>
+            </div>
+            <div class="episodes-body" id="episodesGridContainer">
+                <!-- Episode Cards rendered dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- BUILT-IN VIDEO STREAM PLAYER MODAL (MASTER SENIOR FEATURE) -->
+    <div class="player-modal hidden" id="playerModal">
+        <div class="player-backdrop" id="playerBackdrop"></div>
+        <div class="player-content">
+            <div class="player-header">
+                <div class="player-title-wrap">
+                    <span class="player-live-tag">LIVE STREAM PREVIEW</span>
+                    <h4 id="playerModalTitle">Video Title</h4>
+                </div>
+                <button class="btn-close-sm" id="btnClosePlayerModal">✕</button>
+            </div>
+            <div class="player-video-wrap">
+                <video id="html5VideoPlayer" controls autoplay preload="metadata">
+                    <source id="videoSource" src="" type="video/mp4">
+                    កម្មវិធី Browser របស់អ្នកមិនគាំទ្រ HTML5 Video ឡើយ។
+                </video>
+            </div>
+            <div class="player-footer">
+                <div class="player-quality-info">
+                    <span>កម្រិតរូបភាព៖ <strong>1080P FHD (High-Bitrate)</strong></span>
+                    <span>ប្រភព៖ <strong>Official Content Server</strong></span>
+                </div>
+                <button id="btnPlayerDownloadThis" class="btn-pill-primary">
+                    <span>⬇️ ទាញយកវីដេអូនេះភ្លាមៗ</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DOWNLOAD MANAGER DRAWER (SLIDE-IN MODAL) -->
+    <div class="queue-drawer-overlay hidden" id="queueOverlay"></div>
+    <aside class="queue-drawer hidden" id="queueDrawer">
+        <div class="drawer-header">
+            <div class="drawer-header-left">
+                <div class="drawer-title-icon">⚡</div>
+                <div>
+                    <h3>កិច្ចការទាញយក (Download Tasks)</h3>
+                    <p class="drawer-subtitle">ទាញយកល្បឿនលឿន Multi-threaded ចូល Folder កុំព្យូទ័រ</p>
+                </div>
+            </div>
+            <div class="drawer-header-right">
+                <button id="btnClearCompleted" class="btn-outline-sm">សំអាតដែលរួចរាល់</button>
+                <button id="btnCloseQueue" class="btn-close-sm">✕</button>
+            </div>
+        </div>
+
+        <div class="drawer-body" id="queueListContainer">
+            <!-- Dynamic Task Cards -->
+            <div class="queue-empty-state" id="queueEmptyState">
+                <div class="queue-empty-icon">📥</div>
+                <p>មិនទាន់មានកិច្ចការទាញយកនៅឡើយទេ</p>
+                <span class="queue-empty-hint">សូមជ្រើសរើស Poster ឬ Video ពីផ្ទាំងខាងឆ្វេងដើម្បីទាញយក</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- POSTER LIGHTBOX PREVIEW MODAL -->
+    <div class="lightbox-modal hidden" id="lightboxModal">
+        <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
+        <div class="lightbox-content">
+            <button class="btn-lightbox-close" id="btnCloseLightbox">✕</button>
+            <div class="lightbox-image-wrap">
+                <img id="lightboxImage" src="" alt="Poster Preview">
+            </div>
+            <div class="lightbox-footer">
+                <h4 id="lightboxTitle">Title</h4>
+                <div class="lightbox-actions">
+                    <button id="btnLightboxDownloadPoster" class="btn-pill-primary">
+                        <span>🖼️ ទាញយក Poster នេះ</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

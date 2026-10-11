@@ -1,0 +1,40 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Android APK packages (GitHub 100MB limit & binaries)
+*.apk
+
+# Video & Media downloads
+*.mp4
+*.ts
+*.m3u8
+*.flv
+*.mkv
+*.webm
+*.part
+downloads/
+TDL_Downloads/
+
+# Raw dumps and caches
+*.dump
+hongguo_page.html
+
+# Environments and configs
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
