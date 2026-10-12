@@ -367,7 +367,7 @@ function renderFilteredGrid() {
 
         card.innerHTML = `
             <div class="card-poster-wrapper">
-                <img class="card-poster-img" src="${item.poster_url}" alt="${item.title}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=400&q=80'">
+                <img class="card-poster-img" src="${item.poster_url}" alt="${item.title}" loading="lazy" referrerpolicy="no-referrer" onerror="if(!this.dataset.retried){this.dataset.retried='1';this.src='/api/proxy-image?url='+encodeURIComponent('${item.poster_url}');}">
                 <div class="card-poster-gradient"></div>
 
                 <div class="card-checkbox-wrap">
@@ -487,7 +487,14 @@ async function openEpisodesModal(itemId) {
     if (!item) return;
     currentActiveItemForEpisodes = item;
 
+    episodesModalCover.referrerPolicy = "no-referrer";
     episodesModalCover.src = item.poster_url;
+    episodesModalCover.onerror = function() {
+        if (!this.dataset.retried) {
+            this.dataset.retried = '1';
+            this.src = '/api/proxy-image?url=' + encodeURIComponent(item.poster_url);
+        }
+    };
     episodesModalTitle.textContent = item.title;
     episodesModalSource.textContent = item.source;
     episodesModalCount.textContent = `Total: ${item.episodes || 1} ភាគ (Episodes)`;
@@ -816,7 +823,14 @@ function openLightbox(itemId) {
     const item = allItems.find(i => i.id === itemId);
     if (!item) return;
 
+    lightboxImage.referrerPolicy = "no-referrer";
     lightboxImage.src = item.poster_url;
+    lightboxImage.onerror = function() {
+        if (!this.dataset.retried) {
+            this.dataset.retried = '1';
+            this.src = '/api/proxy-image?url=' + encodeURIComponent(item.poster_url);
+        }
+    };
     lightboxTitle.textContent = item.title;
     lightboxModal.classList.remove('hidden');
 

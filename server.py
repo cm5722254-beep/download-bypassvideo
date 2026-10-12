@@ -27,9 +27,21 @@ import subprocess
 
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse, FileResponse, Response
 from pydantic import BaseModel
 import uvicorn
+
+def normalize_poster_url(url: str) -> str:
+    """Ensures ByteDance/Hongguo/DramaBox posters have valid extension and CDN templates"""
+    if not url:
+        return ""
+    if "byteimg.com" in url or "douyinpic.com" in url:
+        if "~" in url:
+            base = url.split("~")[0]
+            return f"{base}~noop.jpeg"
+        elif not url.endswith((".jpeg", ".jpg", ".png", ".webp", ".image")):
+            return f"{url}~noop.jpeg"
+    return url
 
 app = FastAPI(title="TDL Media Downloader Pro - Global Senior Edition")
 
@@ -264,7 +276,7 @@ def scrape_live_hongguo_categories() -> List[dict]:
                                 "episodes": 80 if "Comic" not in c_tag else 120,
                                 "duration": "2m 15s / ep" if "Comic" not in c_tag else "Manga Chapters",
                                 "quality": "1080P FHD",
-                                "poster_url": it['poster_url'],
+                                "poster_url": normalize_poster_url(it['poster_url']),
                                 "video_url": "", # Dynamically resolved on demand from qznovelvod.com
                                 "description": f"Hongguo {c_tag}: ទាញយកពី {it.get('detail_url', '')} ផ្ទាល់។",
                                 "detail_url": it.get('detail_url', ''),
@@ -288,7 +300,7 @@ def scrape_live_hongguo_categories() -> List[dict]:
                     if 'novel-pic' in src and alt:
                         parent_a = img.find_parent('a')
                         href = parent_a.get('href', '') if parent_a else ''
-                        hd_poster = src.split('~')[0] if '~' in src else src
+                        hd_poster = normalize_poster_url(src)
 
                         raw_id = ""
                         if 'series_id=' in href:
@@ -434,7 +446,7 @@ def scrape_live_iqiyi() -> List[dict]:
     return items
 
 def scrape_live_donghua() -> List[dict]:
-    """Scrapes Real Lucifer Donghua Series Catalog"""
+    """Scrapes Real Lucifer Donghua Series Catalog with Official HD Posters"""
     real_donghua = [
         {
             "id": "ld-soul-land-2",
@@ -445,7 +457,7 @@ def scrape_live_donghua() -> List[dict]:
             "episodes": 68,
             "duration": "20m / ep",
             "quality": "4K 60FPS",
-            "poster_url": "https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80",
+            "poster_url": "https://manhua.acimg.cn/vertical/0/24_19_20_35c80316bdac39d695536bc8cb217b98_1608808810499.jpg/420",
             "video_url": "",
             "description": "Lucifer Donghua Official #1: ត្រកូលថាងកេរ្តិ៍ឈ្មោះល្បីល្បាញជុំវិញពិភពលោក!",
             "stream_host": "Lucifer Donghua High-Speed Host"
@@ -459,7 +471,7 @@ def scrape_live_donghua() -> List[dict]:
             "episodes": 115,
             "duration": "22m / ep",
             "quality": "4K UHD",
-            "poster_url": "https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=800&q=80",
+            "poster_url": "https://lain.bgm.tv/pic/cover/l/c9/d0/516654_GGC1f.jpg",
             "video_url": "",
             "description": "ស៊ាវយ៉ាន ចូលដល់តំបន់កណ្តាល និងការដណ្តើមកំពូលអណ្ដាតភ្លើងទេវៈ។",
             "stream_host": "Lucifer Donghua High-Speed Host"
@@ -473,7 +485,7 @@ def scrape_live_donghua() -> List[dict]:
             "episodes": 180,
             "duration": "21m / ep",
             "quality": "4K 60FPS",
-            "poster_url": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80",
+            "poster_url": "https://lain.bgm.tv/pic/cover/l/f3/6e/542046_Vv111.jpg",
             "video_url": "",
             "description": "ការប្រយុទ្ធដ៏អស្ចារ្យរបស់ស្តេចស៊ីហាវ ដើម្បីការពារដែនដីកំណើត!",
             "stream_host": "Lucifer Donghua High-Speed Host"
@@ -487,7 +499,7 @@ def scrape_live_donghua() -> List[dict]:
             "episodes": 60,
             "duration": "19m / ep",
             "quality": "1080P FHD",
-            "poster_url": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80",
+            "poster_url": "https://lain.bgm.tv/pic/cover/l/3f/59/345768_SNN2b.jpg",
             "video_url": "",
             "description": "នាគមាស ៩ ទាញមឈូសបុរាណឆ្លងកាត់ផ្កាយទៅកាន់ពិភពយុទ្ធសិល្ប៍ថ្មី។",
             "stream_host": "Lucifer Donghua High-Speed Host"
@@ -501,7 +513,7 @@ def scrape_live_donghua() -> List[dict]:
             "episodes": 52,
             "duration": "20m / ep",
             "quality": "4K UHD",
-            "poster_url": "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=800&q=80",
+            "poster_url": "https://lain.bgm.tv/pic/cover/l/4c/12/345802_d9vBf.jpg",
             "video_url": "",
             "description": "វ៉ាងលីន ស្វែងរកមាគ៌ាអមតៈដើម្បីសងសឹក និងការពារមនុស្សជាទីស្រលាញ់។",
             "stream_host": "Lucifer Donghua High-Speed Host"
@@ -515,7 +527,7 @@ def scrape_live_donghua() -> List[dict]:
             "episodes": 130,
             "duration": "21m / ep",
             "quality": "4K 60FPS",
-            "poster_url": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80",
+            "poster_url": "https://lain.bgm.tv/pic/cover/l/38/0e/244239_a49SE.jpg",
             "video_url": "",
             "description": "ពិភពអនាគតដែលពោរពេញដោយសត្វចម្លែក និងការវិវត្តន៍កម្លាំងរបស់មនុស្សលោក។",
             "stream_host": "Lucifer Donghua High-Speed Host"
@@ -733,6 +745,30 @@ def get_catalog(source: Optional[str] = None, search: Optional[str] = None):
         s = search.lower().strip()
         results = [item for item in results if s in item["title"].lower() or s in item.get("category", "").lower() or s in item.get("description", "").lower()]
     return results
+
+@app.get("/api/proxy-image")
+def proxy_image(url: str):
+    """Proxies external poster images directly to bypass browser CORS and Referer restrictions"""
+    if not url:
+        raise HTTPException(status_code=400, detail="Missing url parameter")
+    clean_url = normalize_poster_url(url)
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+            'Referer': 'https://hongguoduanju.com/' if 'byteimg' in clean_url or 'douyin' in clean_url else 'https://www.dramaboxdb.com/'
+        }
+        req = urllib.request.Request(clean_url, headers=headers)
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            content = resp.read()
+            content_type = resp.headers.get('content-type', 'image/jpeg')
+            return Response(
+                content=content,
+                media_type=content_type,
+                headers={"Cache-Control": "public, max-age=86400"}
+            )
+    except Exception as e:
+        print(f"[Image Proxy Error] {clean_url}: {e}")
+        raise HTTPException(status_code=502, detail="Failed to fetch image")
 
 @app.get("/api/resolve-stream/{item_id}")
 def get_resolved_stream(item_id: str):
